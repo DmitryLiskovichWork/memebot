@@ -1,0 +1,27 @@
+{
+  "name": "memebot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DmitryLiskovichWork/memebot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DmitryLiskovichWork/memebot/issues"
+  },
+  "homepage": "https://github.com/DmitryLiskovichWork/memebot#readme",
+  "dependencies": {
+    "telegraf": "^4.12.2"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.3",
+    "nodemon": "^2.0.21"
+  }
+}
