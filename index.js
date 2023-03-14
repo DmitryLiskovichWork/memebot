@@ -1,12 +1,14 @@
 const { Telegraf } = require('telegraf');
-
-console.log(process.env.API_KEY)
+const { handelInlineChange, handleMessage, handleChosenInline } = require('./src');
+require('dotenv').config();
 
 const bot = new Telegraf(process.env.API_KEY);
 bot.start((ctx) => ctx.reply('Welcome'));
-bot.on('message', (ctx) => {
-    console.log(ctx);
-})
+//Handlers
+bot.on('inline_query', handelInlineChange);
+bot.on('message', handleMessage)
+// bot.on('chosen_inline_result', handleChosenInline);
+
 bot.launch();
 
 // Enable graceful stop
