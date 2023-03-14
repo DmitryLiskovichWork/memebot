@@ -1,4 +1,4 @@
-const { imageResponseTemplate } = require('../constants');
+require('dotenv').config();
 
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
@@ -7,8 +7,12 @@ function getRandomIntInclusive(min, max) {
 };
 
 function filterImagesByText(list, text) {
-    return list.filter((item) => item.text.includes(text));
+    return list.filter((item) => item.text.includes(text.toLowerCase().split` `.join``));
 };
+
+function generateImageFullUrl(path) {
+    return `https://api.telegram.org/file/bot${process.env.API_KEY}/${path}`;
+}
 
 function generateListArticles(list) {
     return list.map((item, index) => ({
@@ -22,5 +26,6 @@ function generateListArticles(list) {
 module.exports = {
     getRandomIntInclusive,
     filterImagesByText,
-    generateListArticles
+    generateListArticles,
+    generateImageFullUrl
 }

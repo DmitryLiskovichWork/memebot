@@ -1,6 +1,12 @@
-const { filterImagesByText, generateListArticles } = require('../helpers');
-const { inlineResponse } = require('../constants');
+const { filterImagesByText, generateListArticles, generateImageFullUrl } = require('../helpers');
+// const { getTagsByImagePath } = require('../AI_Module');
+const Clarifai = require('clarifai');
 const fs = require('fs');
+require('dotenv').config();
+
+const aiApp = new Clarifai.App({
+    apiKey: process.env.AI_API_KEY
+});
 
 const cacheBot = JSON.parse(fs.readFileSync(__dirname + '/storage.json'));
 
@@ -9,21 +15,19 @@ const handelInlineChange = (ctx) => {
     const query = ctx.inlineQuery.query;
     const images = cacheBot[chatId];
     const globalImages = cacheBot.global || [];
-    console.log(globalImages)
     if(query.startsWith('global')) {
         const newQuery = query.replace('global', '');
         const articles = generateListArticles(newQuery.length ? filterImagesByText(globalImages, newQuery) : globalImages);
-        ctx.answerInlineQuery(articles, { cache_time: 0 });
+        ctx.answerInlineQuery(articles);
         return;
     }
-
     if(query && images?.length) {
         const filteredImages = filterImagesByText(images, query)
         const articles = generateListArticles(filteredImages);
-        ctx.answerInlineQuery(articles, { cache_time: 0 });
+        ctx.answerInlineQuery(articles);
     } else {
         const articles = generateListArticles(images);
-        ctx.answerInlineQuery(articles, { cache_time: 0 });
+        ctx.answerInlineQuery(articles);
     }
 }
 
@@ -33,7 +37,7 @@ const handleChosenInline = (ctx) => {
     cacheBot[chatId] = [];
 }
 
-const handleMessage = (ctx) => {
+const handleMessage = async (ctx) => {
     const chatId = ctx.message.from.id;
     const text = ctx?.message?.caption;
     const photos = ctx?.message?.photo;
@@ -52,11 +56,19 @@ const handleMessage = (ctx) => {
     if(photos?.length && text) {
         const lastPhoto = photos[photos.length - 1];
         const photoUrl = lastPhoto.file_id;
-        cacheBot[chatId] = [...(cacheBot[chatId] || []), { url: photoUrl, text }]
-        cacheBot.global = [...(cacheBot[chatId] || []), { url: photoUrl, text }];
+        const fileInfo = await ctx.telegram.getFile(photoUrl);
+        const fullPath = generateImageFullUrl(fileInfo.file_path);
+        const aiPredict = await aiApp.models.predict(Clarifai.GENERAL_MODEL, fullPath)
+        // const test = await getTagsByImagePath(fullPath);
+        // console.log(test);
+        const tags = aiPredict.outputs[0].data.concepts.map(concept => concept.name);
+        const textWithTags = (text.split` `.join`` + tags.join``).toLowerCase();
+        cacheBot[chatId] = [...(cacheBot[chatId] || []), { url: photoUrl, text: textWithTags }]
+        cacheBot.global = [...(cacheBot[chatId] || []), { url: photoUrl, text: textWithTags }];
         fs.writeFile(__dirname + '/storage.json', JSON.stringify(cacheBot), () => {})
+        ctx.sendMessage('Everything done, your image has been added. By the way, here a list of tags for the image - ' 
+            + tags.map(item => `#${item.replace(' ', '-')}`).join`, `);
     }
-    console.log(cacheBot);
 }
 
 module.exports = {
