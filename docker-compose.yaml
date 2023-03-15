@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  node:
+    build: .
+    container_name: node-server
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: npm start
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - python
+    networks:
+      - my-network
+
+  python:
+    image: python:3.9-slim
+    container_name: python
+    restart: always
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python app.py
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge

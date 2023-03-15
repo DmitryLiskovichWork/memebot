@@ -1,3 +1,8 @@
+require('dotenv').config();
+
+const API_KEY = process.env.API_KEY;
+const AI_API_KEY = process.env.AI_API_KEY;
+
 const imageResponseTemplate = [
     {
         type: 'photo',
@@ -18,5 +23,7 @@ const inlineResponse = [
 
 module.exports = {
     inlineResponse,
-    imageResponseTemplate
+    imageResponseTemplate,
+    API_KEY,
+    AI_API_KEY
 }

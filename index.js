@@ -1,16 +1,28 @@
-const { Telegraf } = require('telegraf');
-const { handelInlineChange, handleMessage, handleChosenInline } = require('./src');
-require('dotenv').config();
+const { BOT } = require('./botconfig');
+const {
+    handelInlineChange,
+    handleMessage,
+    handleChosenInline,
+    handleShowImages,
+    handleShowMyImages,
+    handleDelete,
+    handleShowAllImages
+} = require('./src');
 
-const bot = new Telegraf(process.env.API_KEY);
-bot.start((ctx) => ctx.reply('Welcome'));
+BOT.start(handleShowImages);
 //Handlers
-bot.on('inline_query', handelInlineChange);
-bot.on('message', handleMessage)
-// bot.on('chosen_inline_result', handleChosenInline);
+BOT.command('delete', handleDelete);
+BOT.command('show', handleShowImages);
 
-bot.launch();
+BOT.on('inline_query', handelInlineChange);
+BOT.on('message', handleMessage)
+
+BOT.action('show-my-images', handleShowMyImages)
+BOT.action('show-all-images', handleShowAllImages)
+BOT.on('chosen_inline_result', handleChosenInline);
+
+BOT.launch();
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.once('SIGINT', () => BOT.stop('SIGINT'));
+process.once('SIGTERM', () => BOT.stop('SIGTERM'));

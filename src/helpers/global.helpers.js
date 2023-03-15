@@ -1,4 +1,4 @@
-require('dotenv').config();
+const { API_KEY } = require('../constants');
 
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
@@ -11,10 +11,10 @@ function filterImagesByText(list, text) {
 };
 
 function generateImageFullUrl(path) {
-    return `https://api.telegram.org/file/bot${process.env.API_KEY}/${path}`;
+    return `https://api.telegram.org/file/bot${API_KEY}/${path}`;
 }
 
-function generateListArticles(list) {
+function generateListArticles(list=[]) {
     return list.map((item, index) => ({
         type: 'photo',
         id: index,
@@ -23,9 +23,34 @@ function generateListArticles(list) {
     }))
 }
 
+function generateMediaGroup({
+    chatId,
+    isMine,
+    botData,
+    ctx,
+    markdownToShowImages
+}) {
+    const data = isMine ? botData[chatId] : botData.global;
+    const deleteMessage =  (image) => `Your image ID is "${image.id}", you can use the ID to delete the image "/delete ${image.id}" to delete \n`;
+    const tagsMessage = (image) => `Here some tags to find the image throw the bot: ${image.tags}`;
+    const mediaGroup = data.map(image => ({ 
+        media: image.url,
+        type: 'photo',
+        caption: `${isMine ? deleteMessage(image) : ''}${tagsMessage(image)}`
+    }));
+
+    if(!mediaGroup.length) {
+        ctx.reply("Ops, you don't have any images, you can add your images or check global images", markdownToShowImages);
+        return mediaGroup;
+    }
+
+    return mediaGroup;
+}
+
 module.exports = {
     getRandomIntInclusive,
     filterImagesByText,
     generateListArticles,
-    generateImageFullUrl
+    generateImageFullUrl,
+    generateMediaGroup
 }
