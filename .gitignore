@@ -1,4 +1,4 @@
 /.env
 /node_modules
 
-/src/handlers/storage.json
+/src/data/storage.json
