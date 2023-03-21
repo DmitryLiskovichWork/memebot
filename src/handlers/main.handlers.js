@@ -1,11 +1,6 @@
 const { filterImagesByText, generateListArticles, generateImageFullUrl } = require('../helpers');
-const Clarifai = require('clarifai');
 const { botData, saveDataToFile } = require('../data');
-const { AI_API_KEY } = require('../constants');
-
-const aiApp = new Clarifai.App({
-    apiKey: AI_API_KEY
-});
+const { getTagsByImagePath } = require('../AI_Module');
 
 const handelInlineChange = (ctx) => {
     const chatId = ctx.inlineQuery.from.id;
@@ -74,13 +69,13 @@ const handleMessage = async (ctx) => {
     const tagsStorage = {};
 
     try {
-        const aiPredict = await aiApp.models.predict(Clarifai.GENERAL_MODEL, fullPathToImage);
-        const tags = aiPredict.outputs[0].data.concepts.map(concept => concept.name);
+        const { labels: tags } = await getTagsByImagePath(fullPathToImage);
         const textForSearch = (text.split` `.join`` + tags.join``).toLowerCase();
         const hashTags = tags.map(item => `#${item.replace(' ', '-')}`).join`, `;
         tagsStorage.textForSearch = textForSearch;
         tagsStorage.hashTags = hashTags;
     } catch (e) {
+        console.log(e);
         tagsStorage.textForSearch = '';
         tagsStorage.hashTags = '';
     }

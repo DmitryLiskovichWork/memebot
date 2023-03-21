@@ -1,0 +1,1 @@
+https://tfhub.dev/google/tfjs-model/imagenet/inception_v3/classification/3/default/1 here is a link to download pre-trained model

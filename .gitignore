@@ -2,3 +2,4 @@
 /node_modules
 
 /src/data/storage.json
+/src/AI_Module/model
