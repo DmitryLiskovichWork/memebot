@@ -1,5 +1,7 @@
-const globalConstants = require('./global.constatns');
+const globalConstants = require('./global.constants');
+const carsConstants = require('./cars.constants');
 
 module.exports = {
-    ...globalConstants
+    ...globalConstants,
+    ...carsConstants
 }

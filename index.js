@@ -6,13 +6,19 @@ const {
     handleShowImages,
     handleShowMyImages,
     handleDelete,
-    handleShowAllImages
+    handleShowAllImages,
+    handelCarSubscribe,
+    handelCarUnsubscribe,
+    handleMainButtons
 } = require('./src');
 
 BOT.start(handleShowImages);
 //Handlers
 BOT.command('delete', handleDelete);
 BOT.command('show', handleShowImages);
+BOT.command('getcars', handelCarSubscribe);
+BOT.command('stopgetcars', handelCarUnsubscribe);
+BOT.command('cars', handleMainButtons);
 
 BOT.on('inline_query', handelInlineChange);
 BOT.on('message', handleMessage)
