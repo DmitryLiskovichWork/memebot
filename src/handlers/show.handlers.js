@@ -13,18 +13,21 @@ function handleShowImages(ctx) {
 
 function handleShowMyImages(ctx) {
     const chatId = ctx.callbackQuery.from.id;
-    const mediaGroup = generateMediaGroup({chatId, isMine: true, botData, markdownToShowImages, ctx})
+    const mediaGroup = generateMediaGroup({ isMine: true, data: botData[chatId], markdownToShowImages, ctx})
 
-    mediaGroup.splice(10);
-    ctx.replyWithMediaGroup(mediaGroup, markdownToShowImages);
+    const splitedGroupe = mediaGroup.splitByDivider(10);
+    splitedGroupe.forEach(group => {
+        ctx.replyWithMediaGroup(group);
+    });
 }
 
 function handleShowAllImages(ctx) {
-    const chatId = ctx.callbackQuery.from.id;
-    const mediaGroup = generateMediaGroup({chatId, isMine: false, botData, markdownToShowImages, ctx})
+    const mediaGroup = generateMediaGroup({isMine: false, data: botData.global, markdownToShowImages, ctx})
 
-    mediaGroup.splice(10);
-    ctx.replyWithMediaGroup(mediaGroup, markdownToShowImages);
+    const splitedGroupe = mediaGroup.splitByDivider(10);
+    splitedGroupe.forEach(group => {
+        ctx.replyWithMediaGroup(group);
+    });
 }
 
 module.exports = {

@@ -24,13 +24,11 @@ function generateListArticles(list=[]) {
 }
 
 function generateMediaGroup({
-    chatId,
     isMine,
-    botData,
+    data,
     ctx,
     markdownToShowImages
 }) {
-    const data = isMine ? botData[chatId] : botData.global;
     const deleteMessage =  (image) => `Your image ID is "${image.id}", you can use the ID to delete the image "/delete ${image.id}" to delete \n`;
     const tagsMessage = (image) => `Here some tags to find the image throw the bot: ${image.tags}`;
     const mediaGroup = data.map(image => ({ 
@@ -47,10 +45,22 @@ function generateMediaGroup({
     return mediaGroup;
 }
 
+Array.prototype.splitByDivider = function(divider = 10) {
+    return this.reduce((acc, item, index) => {
+        const currentDivider = Math.floor(index/divider);
+        if(acc[currentDivider]?.length) {
+            acc[currentDivider].push(item);
+        } else {
+            acc[currentDivider] = [item];
+        }
+        return acc;
+    }, [])
+}
+
 module.exports = {
     getRandomIntInclusive,
     filterImagesByText,
     generateListArticles,
     generateImageFullUrl,
-    generateMediaGroup
+    generateMediaGroup,
 }
