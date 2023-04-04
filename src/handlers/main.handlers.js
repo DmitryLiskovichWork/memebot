@@ -1,12 +1,17 @@
 const { filterImagesByText, generateListArticles, generateImageFullUrl } = require('../helpers');
-const { botData, saveDataToFile } = require('../data');
 const { getTagsByImagePath } = require('../AI_Module');
+const { startMarkUp } = require('../constants');
+const { DBInstance } = require('../DB_Logic');
 
-const handelInlineChange = (ctx) => {
+function handleStart(ctx) {
+    ctx.reply(startMarkUp);
+}
+
+const handelInlineChange = async (ctx) => {
     const chatId = ctx.inlineQuery.from.id;
     const query = ctx.inlineQuery.query;
-    const images = botData[chatId];
-    const globalImages = botData.global || [];
+    const images = await DBInstance.getImages({id: chatId})
+    const globalImages = await DBInstance.getImages({isGlobal: true});
 
     if(query.startsWith('global')) {
         const newQuery = query.replace('global', '');
@@ -45,12 +50,14 @@ const handleMessage = async (ctx) => {
     const text = ctx?.message?.caption;
     const photos = ctx?.message?.photo;
 
+    const myImages = await DBInstance.getImages({id: chatId});
+
     if(!text) {
         ctx.sendMessage('You should enter caption for image to use the text for searching');
         return;
     }
 
-    if(botData[chatId] && botData[chatId].some(item => item.text === text)) {
+    if(myImages && myImages.some(item => item.text === text)) {
         ctx.sendMessage('The caption already used for the image, please use another one');
         return;
     }
@@ -82,9 +89,10 @@ const handleMessage = async (ctx) => {
     
     const newImageData = { url: photoUrl, text: tagsStorage.textForSearch, tags: tagsStorage.hashTags, id: lastPhotoId };
 
-    botData[chatId] = [...(botData[chatId] || []), newImageData]
-    botData.global = [...(botData.global || []), newImageData];
-    saveDataToFile(botData);
+    DBInstance.addImage({
+        id: chatId,
+        newImage: newImageData
+    });
 
     ctx.sendMessage('Everything done, your image has been added. By the way, here a list of tags for the image - ' + tagsStorage.hashTags);
 }
@@ -92,5 +100,6 @@ const handleMessage = async (ctx) => {
 module.exports = {
     handelInlineChange,
     handleMessage,
-    handleChosenInline
+    handleChosenInline,
+    handleStart
 }

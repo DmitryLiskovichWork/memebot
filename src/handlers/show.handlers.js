@@ -1,6 +1,6 @@
 const { Markup } = require('telegraf');
-const { botData } = require('../data');
 const { generateMediaGroup } = require('../helpers');
+const { DBInstance } = require('../DB_Logic');
 
 const markdownToShowImages = Markup.inlineKeyboard([
     Markup.button.callback('Show all images', 'show-all-images'),
@@ -11,9 +11,12 @@ function handleShowImages(ctx) {
     ctx.reply('Select option to show images and delete if you want', markdownToShowImages)
 }
 
-function handleShowMyImages(ctx) {
+async function handleShowMyImages(ctx) {
     const chatId = ctx.callbackQuery.from.id;
-    const mediaGroup = generateMediaGroup({ isMine: true, data: botData[chatId], markdownToShowImages, ctx})
+    const images = await DBInstance.getImages({
+        id: chatId
+    });
+    const mediaGroup = generateMediaGroup({ isMine: true, data: images, markdownToShowImages, ctx})
 
     const splitedGroupe = mediaGroup.splitByDivider(10);
     splitedGroupe.forEach(group => {
@@ -21,8 +24,11 @@ function handleShowMyImages(ctx) {
     });
 }
 
-function handleShowAllImages(ctx) {
-    const mediaGroup = generateMediaGroup({isMine: false, data: botData.global, markdownToShowImages, ctx})
+async function handleShowAllImages(ctx) {
+    const images = await DBInstance.getImages({
+        isGlobal: true
+    });
+    const mediaGroup = generateMediaGroup({isMine: false, data: images, markdownToShowImages, ctx})
 
     const splitedGroupe = mediaGroup.splitByDivider(10);
     splitedGroupe.forEach(group => {

@@ -1,4 +1,5 @@
 const { API_KEY } = require('../constants');
+const { Markup } = require('telegraf');
 
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
@@ -45,6 +46,16 @@ function generateMediaGroup({
     return mediaGroup;
 }
 
+const generateImageButtons = (images) => {
+    const buttons = images.map(image => {
+        const button = Markup.button.callback(image.id, image.id);
+        button.thumb_url = image.url;
+        return button;
+    })
+
+    return Markup.inlineKeyboard(buttons);
+}
+
 Array.prototype.splitByDivider = function(divider = 10) {
     return this.reduce((acc, item, index) => {
         const currentDivider = Math.floor(index/divider);
@@ -63,4 +74,5 @@ module.exports = {
     generateListArticles,
     generateImageFullUrl,
     generateMediaGroup,
+    generateImageButtons
 }
